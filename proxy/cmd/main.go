@@ -13,6 +13,7 @@ func main() {
 	//create default session if required
 	var tcpPort = flag.String("tcpPort", "", "tcp port")
 	var wsPort = flag.String("wsPort", "", "websocket port")
+	var wsPath = flag.String("wsPath", "", "websocket path")
 	var vncPass = flag.String("vncPass", "", "password on incoming vnc connections to the proxy, defaults to no password")
 	var recordDir = flag.String("recDir", "", "path to save FBS recordings WILL NOT RECORD if not defined.")
 	var targetVnc = flag.String("target", "", "target vnc server (host:port or /path/to/unix.socket)")
@@ -40,13 +41,18 @@ func main() {
 		logger.Warn("proxy will have no password")
 	}
 
+	if *wsPath == "" {
+		logger.Warn("wsPath is set to /")
+        *wsPath = "/"
+	}
+    
 	tcpURL := ""
 	if *tcpPort != "" {
 		tcpURL = ":" + string(*tcpPort)
 	}
 	wsURL := ""
 	if *wsPort != "" {
-		wsURL = "http://0.0.0.0:" + string(*wsPort) + "/"
+		wsURL = "http://0.0.0.0:" + string(*wsPort) + string(*wsPath)
 	}
 	proxy := &vncproxy.VncProxy{
 		WsListeningURL:   wsURL, // empty = not listening on ws
